@@ -34,19 +34,19 @@ export default function AuthActions({
       : "Registrate y crea una cuenta";
 
   return (
-    <div {...props} className={cn("flex flex-col gap-6", className)}>
-      <Card>
+    <div {...props} className={cn("flex flex-col", className)}>
+      <Card className="h-auto p-4 bg-blue-950">
         <CardHeader>
-          <CardTitle className="text-center font-bold text-xl">
+          <CardTitle className="mt-2 text-center font-bold text-white uppercase">
             {actionTitle}
           </CardTitle>
         </CardHeader>
+        {actionAuth === "login" ? (
+          <Login setAction={setActionAuth} />
+        ) : (
+          <Register setAction={setActionAuth} />
+        )}
       </Card>
-      {actionAuth === "login" ? (
-        <Login setAction={setActionAuth} />
-      ) : (
-        <Register setAction={setActionAuth} />
-      )}
     </div>
   );
 }
@@ -98,34 +98,33 @@ function AuthForm({
     <Form {...form}>
       <form onSubmit={form.handleSubmit(onSubmit)}>
         <div className=" flex flex-col gap-6">
-          <div className="my-1">
+          <div className="relative my-1 text-slate-200">
             <FormField
               control={form.control}
               name="email"
               render={({ field }) => (
                 <FormItem>
                   <FormLabel>Email</FormLabel>
-                  <FormControl>
+                  <FormControl className=" relative">
                     <Input
                       className="p-2"
                       placeholder="@my-email.com"
                       {...field}
-                      required
                     />
                   </FormControl>
-                  <FormMessage />
+                  <FormMessage className=" absolute top-16 text-xs" />
                 </FormItem>
               )}
             />
           </div>
-          <div className="my-1">
+          <div className="my-1 text-slate-200">
             <FormField
               control={form.control}
               name="password"
               render={({ field }) => (
-                <FormItem>
+                <FormItem className="relative">
                   <FormLabel>Password</FormLabel>
-                  <FormControl>
+                  <FormControl className=" relative">
                     <Input
                       className="p-2"
                       type="password"
@@ -134,13 +133,13 @@ function AuthForm({
                       required
                     />
                   </FormControl>
-                  <FormMessage />
+                  <FormMessage className="absolute top-16 text-xs" />
                 </FormItem>
               )}
             />
           </div>
         </div>
-        <div className="my-2">
+        <div className="mt-8">
           <Button
             type="submit"
             variant={"outline"}
@@ -150,8 +149,8 @@ function AuthForm({
           </Button>
         </div>
       </form>
-      <div className="flex items-center mt-4 text-center text-sm">
-        <p>
+      <div className="flex justify-evenly items-center mt-4 text-center text-sm">
+        <p className=" text-slate-200">
           {actionType === "login"
             ? "¿ No tienes una cuenta ?"
             : " Ingresa a tu cuenta "}
