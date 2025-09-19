@@ -1,12 +1,15 @@
 import { type NextRequest } from "next/server";
 import { updateSession } from "@/supabase/middleware";
 
-export async function middleware(request: NextRequest) {
+export default async function middleware(request: NextRequest) {
   return await updateSession(request);
 }
 
 export const config = {
   matcher: [
+    "/dashboard/:path*",
+    "/admin/:path*",
+    "/login",
     /*
      * Match all request paths except for the ones starting with:
      * - _next/static (static files)
@@ -14,8 +17,6 @@ export const config = {
      * - favicon.ico (favicon file)
      * Feel free to modify this pattern to include more paths.
      */
-    "/dashboard/:path*",
-    "/admin/:path*",
-    "/((?!_next/static|_next/image|favicon.ico|.*\\.(?:svg|png|jpg|jpeg|gif|webp)$).*)",
+    /*   "/((?!_next/static|_next/image|favicon.ico|.*\\.(?:svg|png|jpg|jpeg|gif|webp)$).*)" */
   ],
 };
