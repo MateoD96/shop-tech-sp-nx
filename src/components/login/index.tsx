@@ -14,9 +14,12 @@ import { authFormSchema } from "@/validations/auth-schema";
 import { zodResolver } from "@hookform/resolvers/zod";
 import z from "zod";
 import { cn } from "@/lib/utils";
-import { Card, CardDescription, CardHeader, CardTitle } from "../ui/card";
-import { useState } from "react";
+import { Card, CardHeader, CardTitle } from "../ui/card";
+import { useCallback, useState } from "react";
 import { Button } from "../ui/button";
+import { useMutation } from "@tanstack/react-query";
+import { loginAction, signUpAction } from "./actions";
+import { ToastContainer, toast } from "react-toastify";
 
 type ActionAuth = "login" | "register";
 type SetAction = (action: ActionAuth) => void;
@@ -54,34 +57,85 @@ export default function AuthActions({
 /////////////////////////////////
 
 function Login({ setAction }: { setAction: SetAction }) {
-  const onSubmit = (values: InferFormSchema) => {
-    console.log(values, "login");
-  };
+  const [authError, setAuthError] = useState<string>("");
+
+  const mutationLogin = useMutation({
+    mutationKey: ["loginMutationKey"],
+    mutationFn: (user: InferFormSchema) => loginAction(user),
+    onError: (error: Error) => {
+      if (error.message) {
+        setAuthError(error.message);
+      }
+    },
+  });
+
+  const onSubmit = useCallback(
+    (values: InferFormSchema) => {
+      mutationLogin.mutate(values);
+    },
+    [mutationLogin]
+  );
 
   return (
-    <AuthForm actionType="login" onSubmit={onSubmit} setAction={setAction} />
+    <AuthForm
+      errorAuth={authError}
+      actionType="login"
+      isPending={mutationLogin.isPending}
+      onSubmit={onSubmit}
+      setAction={setAction}
+    />
   );
 }
 
 //////////////////////////////
 
 function Register({ setAction }: { setAction: SetAction }) {
-  const onSubmit = (values: InferFormSchema) => {
-    console.log(values, "register");
-  };
+  const mutationRegister = useMutation({
+    mutationKey: ["register"],
+    mutationFn: (newUser: InferFormSchema) => signUpAction(newUser),
+    onSuccess(data) {
+      if (data)
+        toast(data.message, {
+          type: "success",
+          position: "bottom-right",
+          delay: 3000,
+        });
+    },
+    onError(error) {
+      console.log(error);
+    },
+  });
+
+  const onSubmit = useCallback(
+    (values: InferFormSchema) => {
+      mutationRegister.mutate(values);
+    },
+    [mutationRegister]
+  );
 
   return (
-    <AuthForm actionType="register" onSubmit={onSubmit} setAction={setAction} />
+    <>
+      <AuthForm
+        actionType="register"
+        isPending={mutationRegister.isPending}
+        onSubmit={onSubmit}
+        setAction={setAction}
+      />
+    </>
   );
 }
 
 ///////////////////////////////////////////7
 
 function AuthForm({
+  errorAuth,
+  isPending,
   setAction,
   actionType,
   onSubmit,
 }: {
+  errorAuth?: string;
+  isPending: boolean;
   setAction: SetAction;
   actionType: ActionAuth;
   onSubmit: (values: InferFormSchema) => void;
@@ -141,14 +195,20 @@ function AuthForm({
         </div>
         <div className="mt-8">
           <Button
+            disabled={isPending}
             type="submit"
             variant={"outline"}
-            className="w-full text-black"
+            className={cn("w-full text-black")}
           >
             {actionType === "login" ? "Ingresar" : "Registrarse"}
           </Button>
         </div>
       </form>
+      <div>
+        <p className=" font-light text-sm text-red-500">
+          {errorAuth && errorAuth}
+        </p>
+      </div>
       <div className="flex justify-evenly items-center mt-4 text-center text-sm">
         <p className=" text-slate-200">
           {actionType === "login"
