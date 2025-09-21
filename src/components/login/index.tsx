@@ -38,9 +38,9 @@ export default function AuthActions({
 
   return (
     <div {...props} className={cn("flex flex-col", className)}>
-      <Card className="h-auto p-4 bg-blue-950">
+      <Card className="h-auto p-4">
         <CardHeader>
-          <CardTitle className="mt-2 text-center font-bold text-white uppercase">
+          <CardTitle className="mt-2 text-center font-bold uppercase">
             {actionTitle}
           </CardTitle>
         </CardHeader>
@@ -152,7 +152,7 @@ function AuthForm({
     <Form {...form}>
       <form onSubmit={form.handleSubmit(onSubmit)}>
         <div className=" flex flex-col gap-6">
-          <div className="relative my-1 text-slate-200">
+          <div className="relative my-1">
             <FormField
               control={form.control}
               name="email"
@@ -171,7 +171,7 @@ function AuthForm({
               )}
             />
           </div>
-          <div className="my-1 text-slate-200">
+          <div className="my-1">
             <FormField
               control={form.control}
               name="password"
@@ -198,7 +198,7 @@ function AuthForm({
             disabled={isPending}
             type="submit"
             variant={"outline"}
-            className={cn("w-full text-black")}
+            className={cn("w-full")}
           >
             {actionType === "login" ? "Ingresar" : "Registrarse"}
           </Button>
@@ -210,13 +210,13 @@ function AuthForm({
         </p>
       </div>
       <div className="flex justify-evenly items-center mt-4 text-center text-sm">
-        <p className=" text-slate-200">
+        <p>
           {actionType === "login"
             ? "¿ No tienes una cuenta ?"
             : " Ingresa a tu cuenta "}
         </p>
         <Button
-          className=" hover:underline text-white font-bold "
+          className=" hover:underline font-bold "
           onClick={() =>
             setAction(actionType === "login" ? "register" : "login")
           }
