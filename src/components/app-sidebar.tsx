@@ -29,6 +29,7 @@ import {
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from "./ui/dropdown-menu";
+import SignOutBtn from "./login/signout-button";
 
 const items = [
   { title: "Clientes", url: "#", icon: User2Icon },
@@ -134,7 +135,9 @@ export function AppSidebar() {
                   <Link href={"#"}>Billing</Link>
                 </DropdownMenuItem>
                 <DropdownMenuItem>
-                  <Link href={"#"}>Sign out</Link> {/*TODO: Crear componente */}
+                  <SignOutBtn className="hover:no-underline p-0 cursor-pointer">
+                    Sign out
+                  </SignOutBtn>
                 </DropdownMenuItem>
               </DropdownMenuContent>
             </DropdownMenu>
