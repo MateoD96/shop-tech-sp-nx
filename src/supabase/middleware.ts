@@ -39,6 +39,8 @@ export async function updateSession(request: NextRequest) {
     data: { user },
   } = await supabase.auth.getUser();
 
+  const url = request.nextUrl.clone();
+
   if (
     !user &&
     !request.nextUrl.pathname.startsWith("/login") &&
@@ -48,15 +50,23 @@ export async function updateSession(request: NextRequest) {
     !request.nextUrl.pathname.startsWith("/error")
   ) {
     // no user, potentially respond by redirecting the user to the login page
-    const url = request.nextUrl.clone();
     url.pathname = "/login";
     return NextResponse.redirect(url);
   }
 
   if (user && request.nextUrl.pathname.startsWith("/login")) {
-    const url = request.nextUrl.clone();
     url.pathname = "/";
     return NextResponse.redirect(url);
+  } else if (user && request.nextUrl.pathname.startsWith("/admin")) {
+    const { data } = await supabase
+      .from("profiles")
+      .select("role")
+      .eq("id", user.id);
+
+    if (data && data[0].role !== "admin") {
+      url.pathname = "/login";
+      return NextResponse.redirect(url);
+    }
   }
 
   // IMPORTANT: You *must* return the supabaseResponse object as it is.
