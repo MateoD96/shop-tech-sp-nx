@@ -12,7 +12,7 @@ import {
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { Categories } from "@/lib/types";
-import { productSchema } from "@/validations/product-schema";
+import { productFormSchema } from "@/validations/product-schema";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm } from "react-hook-form";
 import z from "zod";
@@ -23,12 +23,15 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
+import { useCallback } from "react";
+import { useMutation } from "@tanstack/react-query";
+import { insertNewProduct } from "./actions";
 
 interface ProductFormInterface {
   idProduct?: string;
-  updateValues?: z.infer<typeof productSchema>;
+  updateValues?: z.infer<typeof productFormSchema>;
   categories: Categories[];
-  onSubmit: (values: z.infer<typeof productSchema>) => void;
+  onSubmit: (values: z.infer<typeof productFormSchema>) => void;
   isPending?: boolean;
 }
 
@@ -37,12 +40,24 @@ export default function NewProductForm({
 }: {
   categories: Categories[];
 }) {
-  const onSubmit = (values: z.infer<typeof productSchema>) => {
-    console.log(values);
-  };
+  const productMutation = useMutation({
+    mutationKey: ["newProductMutation"],
+    mutationFn: insertNewProduct,
+    onSuccess: () => {},
+    onError: () => {},
+  });
+
+  const onSubmit = useCallback(
+    (values: z.infer<typeof productFormSchema>) => {
+      productMutation.mutate(values);
+    },
+    [productMutation]
+  );
 
   return <ProductForm categories={categories} onSubmit={onSubmit} />;
 }
+
+////////////////////////////
 
 function ProductForm({
   categories,
@@ -50,12 +65,15 @@ function ProductForm({
   onSubmit,
   isPending = false,
 }: ProductFormInterface) {
+  //FIXME:
   const form = useForm({
-    resolver: zodResolver(productSchema),
+    resolver: zodResolver(productFormSchema),
     defaultValues: updateValues ?? {
       name: "",
       description: "",
-      status: "activo",
+      categorie: "",
+      stock: "",
+      price: "",
     },
   });
 
@@ -70,7 +88,7 @@ function ProductForm({
                 control={form.control}
                 render={({ field }) => (
                   <FormItem>
-                    <FormLabel className="my-1">Title</FormLabel>
+                    <FormLabel className="my-1">Titulo</FormLabel>
                     <FormControl>
                       <Input
                         className="p-2"
@@ -89,15 +107,42 @@ function ProductForm({
                 control={form.control}
                 render={({ field }) => (
                   <FormItem>
-                    <FormLabel className="my-1">Title</FormLabel>
+                    <FormLabel className="my-1">Descripción</FormLabel>
                     <FormControl>
-                      <Textarea className="p-2" {...field} placeholder="...." />
+                      <Textarea
+                        className="p-2 resize-none"
+                        {...field}
+                        placeholder="...."
+                      />
                     </FormControl>
                     <FormMessage />
                   </FormItem>
                 )}
               />
             </div>
+
+            <div className="my-2 flex gap-6">
+              <FormField
+                name="productImages"
+                control={form.control}
+                render={({ field: { value, onChange, ...fieldProps } }) => (
+                  <FormItem>
+                    <FormLabel className="my-1">Multimedia</FormLabel>
+                    <FormControl>
+                      <Input
+                        type="file"
+                        className="p-2"
+                        multiple
+                        onChange={(event) => onChange(event.target.files)}
+                        {...fieldProps}
+                      />
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+            </div>
+
             <div className="my-2 flex gap-6">
               <FormField
                 name="status"
@@ -120,6 +165,7 @@ function ProductForm({
                   </FormItem>
                 )}
               />
+
               {categories.length > 0 && (
                 <FormField
                   name="categorie"
@@ -146,6 +192,39 @@ function ProductForm({
                   )}
                 />
               )}
+            </div>
+
+            <div className="my-2 flex gap-6">
+              <FormField
+                name="price"
+                control={form.control}
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel className="my-1">Precio</FormLabel>
+                    <FormControl>
+                      <Input className="p-2" {...field} placeholder="20000" />
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+              <FormField
+                name="stock"
+                control={form.control}
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel className="my-1">Stock</FormLabel>
+                    <FormControl>
+                      <Input
+                        className="p-2"
+                        {...field}
+                        placeholder="10 productos en stock"
+                      />
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
             </div>
 
             <div>
